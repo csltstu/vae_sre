@@ -1,3 +1,8 @@
+data/
+ckpt/
+data
+*tsv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,3 +132,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# dataset 
+.data/
+.datasets/
+.dataset/
+*MNIST*
+*mnist*
+*.pth
+*.npz
+*.npy
+*.pt
