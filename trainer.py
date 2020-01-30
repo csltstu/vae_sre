@@ -15,6 +15,7 @@ import torch.optim as optim
 from utils import *
 import torch.nn.functional as F
 from vae import *
+import kaldi_io
 
 class trainer(object):
     def __init__(self, args):
@@ -94,29 +95,25 @@ class trainer(object):
 
         # init data x
         dataset = feats_data_loader(npz_path="./data/feats.npz", dataset_name="vox")
-        test_loader = torch.utils.data.DataLoader(dataset, batch_size=100000, shuffle=False)
+        labels = dataset.label
 
-        contain = []
-        with torch.no_grad():
-             for batch_idx, (data, label) in enumerate(test_loader):
-                 print("gernerating...")
-                 data = data.to(self.device)
-                 recon_data, mu, logvar = self.model(data)
-                 contain.append(mu.cpu().numpy())
-                 print(len(contain[0]))
+        test_loader = torch.utils.data.DataLoader(dataset, batch_size=200000, shuffle=False)
+        for batch_idx, (data, label) in enumerate(test_loader): # batchs
+            data = data.to(self.device)
+            self.optimizer.zero_grad()
+            mu, logvar = self.model.encode(data)
+            mu = mu.cpu().detach().numpy()
+            if batch_idx == 0:
+                feats = mu
+            else:
+                feats = np.vstack((feats, mu))
+            print(batch_idx, " generating... feats shape: ", np.shape(feats))
+
+
+        np.savez("test.npz", feats=feats, spkers=labels)
+        print("sucessfully saved in {}".format("test.npz"))
 
         
-        z = []
-        for it in contain:
-            for i in it:
-                z.append(z)
-        z = np.array(z)
-        print(np.shape(z))
-
-        return z 
-        
-
-
     def reload_checkpoint(self):
         '''check if checkpoint file exists and reload the checkpoint'''
         args = self.args

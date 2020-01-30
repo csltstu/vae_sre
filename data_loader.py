@@ -47,6 +47,8 @@ class feats_data_loader(data.Dataset):
 
     def sample(self):
         size = len(self.label)
+        idx = np.random.randint(0, len(np.unique(_label))-1)
+        return self.data[idx], label[idx]
 
 
 if __name__ == "__main__":
