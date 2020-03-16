@@ -60,10 +60,12 @@ class trainer(object):
                 recon_data, mu, logvar = self.model(data)
 
                 # loss
-                mse = torch.nn.MSELoss(reduce=True, size_average=False)
-                re_construct = mse(recon_data, data)
+                # reconstruct loss: either mse or binary_cross_entropy.
+                # mse = torch.nn.MSELoss(reduce=True, size_average=False)
+                # recon_loss = mse(recon_data, data)
+                recon_loss = F.binary_cross_entropy(recon_data, data, size_average=False)
                 KLD = 0.5 * torch.sum(mu.pow(2) + logvar.exp() - logvar - 1)
-                loss = KLD + re_construct
+                loss = KLD + recon_loss
 
                 loss.backward()
 
@@ -75,14 +77,12 @@ class trainer(object):
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tKLD: {}\tre_con: {}'.format(
                     self.epoch_idx, batch_idx * len(data), len(self.train_loader.dataset),
                     100.*batch_idx / len(self.train_loader),
-                    cur_loss/len(data), KLD/len(data), re_construct.item()/len(data)))
+                    cur_loss/len(data), KLD/len(data), recon_loss.item()/len(data)))
 
             print('====> Epoch: {} Average loss: {:.4f}'.format(
                 self.epoch_idx, train_loss / len(self.train_loader.dataset)))
 
             self.save_checkpoint()
-
-
     
 
     # generate z
