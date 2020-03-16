@@ -10,7 +10,5 @@
 
 
 
-from .averagemeter import AverageMeter
-from .metric import get_skew_and_kurt
 from .args import get_args
 
